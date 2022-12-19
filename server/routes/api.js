@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Seller = require("../models/seller");
 const Product = require("../models/products");
 
 const mongoose = require("mongoose");
@@ -49,6 +50,20 @@ router.post("/register", (req, res) => {
   });
 });
 
+router.post("/seller/register", (req, res) => {
+  let sellerData = req.body;
+  let seller = new Seller(sellerData);
+  seller.save((error, registeredSeller) => {
+    if (error) {
+      console.log(error);
+    } else {
+      let payload = { subject: registeredSeller._id };
+      let token = jwt.sign(payload, "secretKey");
+      res.status(200).send({ token });
+    }
+  });
+});
+
 router.post("/login", (req, res) => {
   let userData = req.body;
 
@@ -69,7 +84,29 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.post("/add-products", verifyToken, (req, res) => {
+router.post("/seller/login", (req, res) => {
+  let sellerData = req.body;
+
+  // console.log(sellerData);
+
+  Seller.findOne({ email: sellerData.email }, (error, seller) => {
+    if (error) {
+      console.log(error);
+    } else {
+      if (!seller) {
+        res.status(401).send("Invalid email!");
+      } else if (seller.password !== sellerData.password) {
+        res.status(401).send("Invalid password!");
+      } else {
+        let payload = { subject: seller._id };
+        let token = jwt.sign(payload, "secretKey");
+        res.status(200).send({ token });
+      }
+    }
+  });
+});
+
+router.post("/add-products", (req, res) => {
   let productData = req.body;
   let product = new Product(productData);
   product.save((error, registeredProduct) => {
