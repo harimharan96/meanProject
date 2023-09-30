@@ -6,7 +6,8 @@ const Seller = require("../models/seller");
 const Product = require("../models/products");
 
 const mongoose = require("mongoose");
-const db = "mongodb://localhost:27017/myDB";
+// const db = "mongodb://localhost:27017/myDB";
+const db = "mongodb+srv://hari:Pablo%40123@cluster0.bjaoitq.mongodb.net/";
 
 mongoose.connect(db, (err) => {
   if (err) {
@@ -108,6 +109,7 @@ router.post("/seller/login", (req, res) => {
 
 router.post("/add-products", (req, res) => {
   let productData = req.body;
+  console.log(productData);
   let product = new Product(productData);
   product.save((error, registeredProduct) => {
     if (error) {
